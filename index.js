@@ -26,14 +26,26 @@ async function run() {
 
         const database = client.db('juwel-portfolio')
         const projectCollection = database.collection('projectCollection')
-
-
+        const admin = database.collection('admin')
+       
 
         app.post('/project', async (req, res) => {
             const data = req.body
             const result = await projectCollection.insertOne(data)
             res.send(result)
+            console.log(result)
         })
+        app.get('/projects',async(req,res) =>{
+            const result = await projectCollection.find().toArray()
+            res.send(result)
+        })
+        
+        app.get('/admin',async(req,res) => {
+            const result = await admin.findOne(admin)
+            res.send(result)
+        })
+
+        
 
 
         await client.db("admin").command({ ping: 1 });
