@@ -4,12 +4,12 @@ const cors = require('cors')
 require('dotenv').config()
 const port = 3000
 
-app.use(express.json());
+
 app.use(cors());
+app.use(express.json());
 
 
-
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.db_usER}:${process.env.db_PasS}@cluster0.rfaan6v.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -26,6 +26,8 @@ async function run() {
 
         const database = client.db('juwel-portfolio')
         const projectCollection = database.collection('projectCollection')
+        const blogsCollection = database.collection('bolgCollection')
+        const deletedBlogCollection = database.collection('deletedBlogCollection')
         const admin = database.collection('admin')
        
 
@@ -33,10 +35,42 @@ async function run() {
             const data = req.body
             const result = await projectCollection.insertOne(data)
             res.send(result)
-            console.log(result)
+            console.log(data)
         })
+
+        app.post('/blog', async(req, res) => {
+            const data = req.body;
+            const result = await blogsCollection.insertOne(data);
+            res.send(result)
+        })
+
         app.get('/projects',async(req,res) =>{
             const result = await projectCollection.find().toArray()
+            res.send(result)
+        })
+        app.get('/blogs',async(req,res) =>{
+            const result = await blogsCollection.find().toArray()
+            res.send(result)
+        })
+        app.delete('/blog/:id', async(req,res) => {
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)}
+            const getBlog = await blogsCollection.findOne(query)
+            const setBlog = await deletedBlogCollection.insertOne(getBlog)
+            console.log('set',setBlog)
+            if(setBlog){
+                const result = await blogsCollection.deleteOne(query)
+                res.send(result)
+            }else{
+                res.send('something went worng')
+            }
+            
+        })
+
+        app.delete('/project/:id',async(req,res) =>{
+            const id = req.params.id
+            const query = {_id: new ObjectId(id)}
+            const result = await projectCollection.deleteOne(query)
             res.send(result)
         })
         
