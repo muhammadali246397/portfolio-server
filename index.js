@@ -52,6 +52,19 @@ async function run() {
             const result = await blogsCollection.find().toArray()
             res.send(result)
         })
+        app.get('/singleProject/:id',async (req,res) => {
+            const id = req.params.id
+            const query = {_id: new ObjectId(id)}
+            const result = await projectCollection.findOne(query);
+            res.send(result)
+        })
+        app.get('/singleBlog/:id',async (req,res) => {
+            const id = req.params.id
+            const query = {_id: new ObjectId(id)}
+            const result = await blogsCollection.findOne(query);
+            res.send(result)
+        })
+
         app.delete('/blog/:id', async(req,res) => {
             const id = req.params.id;
             const query = {_id: new ObjectId(id)}
